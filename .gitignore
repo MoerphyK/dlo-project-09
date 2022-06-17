@@ -131,3 +131,4 @@ dmypy.json
 # Ignore images in image_resizing folder
 /src/image_resizing/images_raw
 /src/image_resizing/images_resized
+.idea

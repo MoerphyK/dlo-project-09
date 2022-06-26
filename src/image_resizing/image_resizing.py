@@ -29,14 +29,10 @@ for filename in os.listdir(LOAD_FOLDER):
     right = width
     bottom = height-offset
 
-    for i in range (0,4):
-        im_rotated = im.rotate(i*90)
-        im_cropped = im_rotated.crop((left, top, right, bottom))
-        im_resized = im_cropped.resize((300, 200))
-
-        new_filename = Path(filename).stem + "_" + str(i * 90) + ".jpg"     # add degree of rotation to filename
-        save_path = os.path.join(SAVE_FOLDER, new_filename)
-        im_resized.save(save_path)
-        print(new_filename)
+    im_cropped = im.crop((left, top, right, bottom))
+    im_resized = im_cropped.resize((300, 200))
+    save_path = os.path.join(SAVE_FOLDER, filename)
+    im_resized.save(save_path)
+    print(filename)
 
 print("\nFinished")

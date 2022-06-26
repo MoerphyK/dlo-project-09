@@ -22,7 +22,7 @@ print( f"device: {device}" )
 
 ### Load Data ### 
 
-train_dataset, test_datset, train_loader, test_loader = dl.data_import()
+train_dataset, test_datset, train_loader, test_loader = dl.import_data()
 
 #Hyperparameters
 num_epochs = 5
@@ -50,27 +50,37 @@ def imshow(img):
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
+
         #Conv2d(ChannelSize,Outputsize,Kernelsize5:5x5)
         #Outputsize must be equal to input size of next layer
+
         self.conv1 = nn.Conv2d(3, 6, 5)
+
         #MaxPool2d(Kernelsize,Stride)
+
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6,16,5)
 
         #Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
+
         self.fc1 = nn.Linear(16*5*5, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 4)
 
     def forward(self, x):
+
         #calling conv layer with relu optimization function
+
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 16*5*5)
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc@(x))
+        x = F.relu(self.fc2(x))
+
         # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
+        
         x = self.fc3(x)
+    
         return x
 
 model = ConvNet().to(device)
@@ -92,10 +102,17 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
-        if (i+1) % 2000 + 0:
+        if (i+1) % 2000 == 0:
             print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
 
 print('Finished Training')
+
+### Setup path to save model ###
+
+# PATH = './cnn.pth'
+# torch.save(model.state_dict(), PATH)
+
+### Evaluating the Model ###
 
 with torch.no_grad():
     n_correct = 0

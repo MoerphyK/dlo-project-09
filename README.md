@@ -12,7 +12,8 @@ CudaVersion >= 11.3
 - Einlesen der Daten (Bilder auf eine einheitliche Pixelgröße einstellen)
 - Preprocessing:
     - Augmentation: Spiegeln (beide Richtungen), Farben ändern (Hintergrund anpassen, Helligkeit anpassen)
-    - Nur Schwarze Kanten, Farbkanäle einführen
+    - Nur Schwarze Kanten, 
+	(- Farbkanäle einführen)
 - Ergebnis Phase 1: 
 	augmented_pictures
 	\-scissors

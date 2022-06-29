@@ -1,0 +1,7 @@
+Bilder drehen (z.B. um 45 Grad):
+	Schwarzer Rand entsteht, größer um je mehr grad gedreht wird
+	wäre auf den von uns geschossenen Bildern möglich, da diese cropped werden
+	-> dies ist dann jedoch keine augmentation mehr, da das nicht auf allen eingangsbildern geschehen kann
+	
+Bilder haben eine Orientierung im Exif Tag
+	muss beachtet werden

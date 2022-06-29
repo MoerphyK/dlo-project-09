@@ -9,6 +9,10 @@ These images will be cropped to a 3:2 ratio and are then scaled to 300x200 pixel
 The resulting images are saved in the folder "images_resized".
 """
 
+# TODO
+# check this new method, it should do exactly what we want
+# https://pillow.readthedocs.io/en/latest/reference/ImageOps.html#PIL.ImageOps.fit
+
 # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system
 # https://pillow.readthedocs.io/en/stable/reference/Image.html#the-image-class
 

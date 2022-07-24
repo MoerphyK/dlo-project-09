@@ -20,8 +20,13 @@ import matplotlib.pyplot as plt
 from torchsummary import summary
 
 ### Try Runtime on CUDA ###
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print( f"device: {device}" )
+device = ""
+if torch.cuda.is_available():
+    device="cuda"
+else:
+    device="cpu"
+    print( f"device: {device}" )
+    exit(0)
 
 ### Load Data ### 
 
@@ -96,16 +101,20 @@ class ConvNet(nn.Module):
 
         ## 61 = floor( (128 - 8 + 2 * 0)/2 + 1)
         ## 61 = Abgerundet: (ImageSize - KernelSize + Stride * Padding)/Stride? + 1)
-        self.conv1 = nn.Conv2d(3, 32, 5)
+        self.conv1 = nn.Conv2d(3, 64, 11, stride=4, padding=2)
+        self.conv2 = nn.Conv2d(64,192,5, padding=2)
+        self.conv3 = nn.Conv2d(192,384,3, padding=1)
+        self.conv4 = nn.Conv2d(384,256,3, padding=1)
+        self.conv5 = nn.Conv2d(256,256,3, padding=1)
 
         #MaxPool2d(Kernelsize,Stride)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(32,64,5)
+        self.pool = nn.MaxPool2d(3, 2)
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
 
         #Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
-        self.fc1 = nn.Linear(64*29*29, 1024)
-        self.fc2 = nn.Linear(1024, 256)
-        self.fc3 = nn.Linear(256, 4)
+        self.fc1 = nn.Linear(256*6*6, 4096)
+        self.fc2 = nn.Linear(4096,4096)
+        self.fc3 = nn.Linear(4096, 4)
 
          # Define proportion or neurons to dropout
         self.dropout = nn.Dropout(0.5)
@@ -115,8 +124,16 @@ class ConvNet(nn.Module):
 
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
-        # print(x.shape) # Just to check the dimensions
-        x = x.view(x.size(0), -1)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool(F.relu(self.conv5(x)))
+
+        x = self.avgpool(x)
+
+        # # print(x.shape) # Just to check the dimensions
+        # x = x.view(x.size(0), -1) -> when flattens may not work?
+        x = torch.flatten(x,1)
+        
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
         x = F.relu(self.fc2(x))

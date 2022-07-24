@@ -99,18 +99,18 @@ class ConvNet(nn.Module):
         self.conv1 = nn.Conv2d(3, 32, 5)
 
         #MaxPool2d(Kernelsize,Stride)
-
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(32,64,5)
 
         #Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
-
         self.fc1 = nn.Linear(64*29*29, 1024)
         self.fc2 = nn.Linear(1024, 256)
         self.fc3 = nn.Linear(256, 4)
 
-    def forward(self, x):
+         # Define proportion or neurons to dropout
+        self.dropout = nn.Dropout(0.5)
 
+    def forward(self, x):
         #calling conv layer with relu optimization function
 
         x = self.pool(F.relu(self.conv1(x)))
@@ -118,7 +118,9 @@ class ConvNet(nn.Module):
         # print(x.shape) # Just to check the dimensions
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))        
+        x = self.dropout(x)
+        x = F.relu(self.fc2(x))
+        x = self.dropout(x)
         x = self.fc3(x) # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x

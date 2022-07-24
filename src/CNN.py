@@ -35,9 +35,20 @@ transform = transforms.Compose(
     transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))]
 )
 
-### Setup for ConvModule ###
+def load_train_data():
+    # type = train or test
+    transform = transforms.Compose([transforms.Resize([128,128]), transforms.ToTensor(),transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))])
+    # ggf. transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) 
+    dataset = datasets.ImageFolder(f'../assets/train/',transform=transform)
+    global dataset_index
+    dataset_index = dataset.class_to_idx
+    return dataset
 
-classes = ('rock','paper','scissors','miscellaneous')
+def load_test_data():
+    # type = train or test
+    transform = transforms.Compose([transforms.Resize([128,128]),transforms.ToTensor()])
+    dataset = datasets.ImageFolder(f'../assets/test/',transform=transform)
+    return dataset
 
 # use imshow for printing images for later use:
 def imshow(img):
@@ -45,6 +56,23 @@ def imshow(img):
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
+
+## Doesn't work with tensor, only a raw dataset
+def show_img(d):
+    #Print (dataset [0] [1]: hier d[1]) # the first dimension is the number of images, the second dimension is 1, and label is returned
+    #Print (dataset [0] [0]: hier d[0]) # is 0 and returns picture data
+    plt.imshow(d[0])
+    plt.title([k for k, v in dataset_index.items() if v == d[1]][0])
+    plt.axis('off')
+    plt.show()
+
+def conv_output_shape(h_w, kernel_size=1, stride=1, pad=0, dilation=1):
+    from math import floor
+    if type(kernel_size) is not tuple:
+        kernel_size = (kernel_size, kernel_size)
+    h = floor( ((h_w[0] + (2 * pad) - ( dilation * (kernel_size[0] - 1) ) - 1 )/ stride) + 1)
+    w = floor( ((h_w[1] + (2 * pad) - ( dilation * (kernel_size[1] - 1) ) - 1 )/ stride) + 1)
+    return h, w
 
 
 class ConvNet(nn.Module):
@@ -54,18 +82,20 @@ class ConvNet(nn.Module):
         #Conv2d(ChannelSize,Outputsize,Kernelsize5:5x5)
         #Outputsize must be equal to input size of next layer
 
-        self.conv1 = nn.Conv2d(3, 6, 5)
+        ## 61 = floor( (128 - 8 + 2 * 0)/2 + 1)
+        ## 61 = Abgerundet: (ImageSize - KernelSize + Stride * Padding)/Stride? + 1)
+        self.conv1 = nn.Conv2d(3, 32, 5)
 
         #MaxPool2d(Kernelsize,Stride)
 
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6,16,5)
+        self.conv2 = nn.Conv2d(32,64,5)
 
         #Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
 
-        self.fc1 = nn.Linear(16*5*5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 4)
+        self.fc1 = nn.Linear(64*29*29, 1024)
+        self.fc2 = nn.Linear(1024, 256)
+        self.fc3 = nn.Linear(256, 4)
 
     def forward(self, x):
 
@@ -73,20 +103,47 @@ class ConvNet(nn.Module):
 
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16*5*5)
+        # print(x.shape) # Just to check the dimensions
+        x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc2(x))        
+        x = self.fc3(x) # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
-        # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
-        
-        x = self.fc3(x)
-    
         return x
 
 model = ConvNet().to(device)
 
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+if __name__ == "__main__":
+    ### Try Runtime on CUDA ###
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print( f"device: {device}" )
+
+    ### Load data ### 
+    train_dataset = load_train_data()
+    test_dataset = load_test_data()
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+
+    # Test for dataloading
+    # images, labels = next(iter(train_loader))
+    # print(f"Types: Image: {type(images[0])}; Label: {type(labels[0])}")
+    # print(f"Shape: Image: {images[0].shape}; Label: {labels[0].shape}") 
+    # print(f"Values: Image: {images[0]}; Label: {label_to_string(labels[0])}") 
+    # exit(0)
+
+    ### Setup for ConvModule ###
+
+    # classes = ('rock','paper','scissors','miscellaneous')
+
+
+    model = ConvNet().to(device)
+    x = torch.randn(1, 3, 128, 128)
+
+    summary(model,(3,128,128))
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 n_total_steps = len(train_loader)
 
@@ -105,42 +162,42 @@ for epoch in range(num_epochs):
         if (i+1) % 2000 == 0:
             print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
 
-print('Finished Training')
+    print('Finished Training')
 
-### Setup path to save model ###
+    ### Setup path to save model ###
 
-# PATH = './cnn.pth'
-# torch.save(model.state_dict(), PATH)
+    PATH = './cnn.pth'
+    torch.save(model.state_dict(), PATH)
 
-### Evaluating the Model ###
+    ### Evaluating the Model ###
 
-with torch.no_grad():
-    n_correct = 0
-    n_samples = 0
-    n_class_correct = [0 for i in range(10)]
-    n_class_samples = [0 for i in range(10)]
+    with torch.no_grad():
+        n_correct = 0
+        n_samples = 0
+        n_class_correct = [0 for i in range(4)]
+        n_class_samples = [0 for i in range(4)]
 
-    for images, labels in test_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images)
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
 
-        _, predicted = torch.max(outputs, 1)
-        n_samples = n_samples + labels.size(0)
-        n_correct = n_correct + (predicted == labels).sum().item()
+            _, predicted = torch.max(outputs, 1)
+            n_samples = n_samples + labels.size(0)
+            n_correct = n_correct + (predicted == labels).sum().item()
 
-        for i in range(batch_size):
-            label = labels[i]
-            pred = predicted[i]
+            for i in range(len(images)): #ehem. batch_size
+                label = labels[i]
+                pred = predicted[i]
 
-            if (label == pred):
-                n_class_correct[label] = n_class_correct[label] + 1
-            
-            n_class_samples[label] = n_class_samples[label] + 1
+                if (label == pred):
+                    n_class_correct[label] = n_class_correct[label] + 1
+                
+                n_class_samples[label] = n_class_samples[label] + 1
 
-    acc = 100.0 * n_correct / n_samples
-    print(f'Accuracy of the network: {acc}%')
+        acc = 100.0 * n_correct / n_samples
+        print(f'Accuracy of the network: {acc}%')
 
-    for i in range(10):
-        acc = 100.0 * n_class_correct[i] / n_class_samples[i]
-        print(f'Accuracy of {classes[i]}: {acc}%')
+        for i in range(4):
+            acc = 100.0 * n_class_correct[i] / n_class_samples[i]
+            print(f'Accuracy of {label_to_string(i)}: {acc}%')

@@ -174,7 +174,7 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
-            if (i+1) % math.floor(n_total_steps/4) == 0 or (i+1) % n_total_steps == 0:
+            if (i+1) % math.floor(n_total_steps/4) == 0 or (i+1) % n_total_steps == 0 or (i+1) % 25 == 0:
                 print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
         print(f'Epoch: [{epoch+1}/{num_epochs} finished.]')
 

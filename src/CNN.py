@@ -1,11 +1,13 @@
 ### IMPORT Scripts ###
 
-import data_loader as dl
+# import data_loader as dl
 
 ### IMPORTS LIB ###
 
+from matplotlib import image
 import numpy as np
 import pandas as pd
+import math
 
 import torch
 from torch.utils.data import DataLoader
@@ -15,6 +17,7 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
+from torchsummary import summary
 
 ### Try Runtime on CUDA ###
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -22,7 +25,7 @@ print( f"device: {device}" )
 
 ### Load Data ### 
 
-train_dataset, test_datset, train_loader, test_loader = dl.import_data()
+# train_dataset, test_datset, train_loader, test_loader = dl.import_data()
 
 #Hyperparameters
 num_epochs = 5
@@ -61,7 +64,7 @@ def imshow(img):
 def show_img(d):
     #Print (dataset [0] [1]: hier d[1]) # the first dimension is the number of images, the second dimension is 1, and label is returned
     #Print (dataset [0] [0]: hier d[0]) # is 0 and returns picture data
-    plt.imshow(d[0])
+    plt.imshow(d[0].permute(1, 2, 0),interpolation='nearest')
     plt.title([k for k, v in dataset_index.items() if v == d[1]][0])
     plt.axis('off')
     plt.show()
@@ -74,6 +77,15 @@ def conv_output_shape(h_w, kernel_size=1, stride=1, pad=0, dilation=1):
     w = floor( ((h_w[1] + (2 * pad) - ( dilation * (kernel_size[1] - 1) ) - 1 )/ stride) + 1)
     return h, w
 
+def label_to_string(label):
+    if label == 0:
+        return "rock"
+    elif label == 1:
+        return "paper"
+    elif label == 2:
+        return "scissor"
+    elif label == 3:
+        return "undefined"
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -111,7 +123,6 @@ class ConvNet(nn.Module):
 
         return x
 
-model = ConvNet().to(device)
 
 if __name__ == "__main__":
     ### Try Runtime on CUDA ###
@@ -127,6 +138,10 @@ if __name__ == "__main__":
 
     # Test for dataloading
     # images, labels = next(iter(train_loader))
+    # show_img(test_dataset[0])
+    # show_img(test_dataset[4])
+    # show_img(test_dataset[10])
+    # show_img(test_dataset[15])
     # print(f"Types: Image: {type(images[0])}; Label: {type(labels[0])}")
     # print(f"Shape: Image: {images[0].shape}; Label: {labels[0].shape}") 
     # print(f"Values: Image: {images[0]}; Label: {label_to_string(labels[0])}") 
@@ -145,22 +160,23 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-n_total_steps = len(train_loader)
+    n_total_steps = len(train_loader)
 
-for epoch in range(num_epochs):
-    for i, (images,labels) in enumerate(train_loader):
-        images = images.to(device)
-        labels = labels.to(device)
+    for epoch in range(num_epochs):
+        for i, (images,labels) in enumerate(train_loader):
+            images = images.to(device)
+            labels = labels.to(device)
 
-        outputs = model(images)
-        loss = criterion(outputs, labels)
+            outputs = model(images)
+            loss = criterion(outputs, labels)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        if (i+1) % 2000 == 0:
-            print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
+            if (i+1) % math.floor(n_total_steps/4) == 0 or (i+1) % n_total_steps == 0:
+                print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
+        print(f'Epoch: [{epoch+1}/{num_epochs} finished.]')
 
     print('Finished Training')
 

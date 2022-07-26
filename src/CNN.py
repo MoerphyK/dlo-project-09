@@ -22,7 +22,6 @@ from torchinfo import summary
 
 ### Try Runtime on CUDA ###
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print( f"device: {device}" )
 
 ### Load Data ### 
 
@@ -53,6 +52,9 @@ def load_test_data():
     transform = transforms.Compose([transforms.Resize([128,128]),transforms.ToTensor()])
     dataset = datasets.ImageFolder(f'../assets/test/',transform=transform)
     return dataset
+
+#def custom_data_loader():
+
 
 # use imshow for printing images for later use:
 def imshow(img):

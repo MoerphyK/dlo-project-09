@@ -17,7 +17,8 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
-from torchsummary import summary
+#from torchsummary import summary
+from torchinfo import summary
 
 ### Try Runtime on CUDA ###
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -83,7 +84,7 @@ def label_to_string(label):
     elif label == 1:
         return "paper"
     elif label == 2:
-        return "scissor"
+        return "scissors"
     elif label == 3:
         return "undefined"
 
@@ -157,7 +158,8 @@ if __name__ == "__main__":
     model = ConvNet().to(device)
     x = torch.randn(1, 3, 128, 128)
 
-    summary(model,(3,128,128))
+    #summary(model,(3,128,128))
+    summary(model, input_size=(batch_size, 3, 128, 128))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

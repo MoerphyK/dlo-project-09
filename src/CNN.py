@@ -17,7 +17,8 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
-from torchsummary import summary
+#from torchsummary import summary
+from torchinfo import summary
 
 ### Try Runtime on CUDA ###
 device = ""
@@ -58,6 +59,9 @@ def load_test_data():
     dataset = datasets.ImageFolder(f'../assets/test/',transform=transform)
     return dataset
 
+#def custom_data_loader():
+
+
 # use imshow for printing images for later use:
 def imshow(img):
     img = img / 2 + 0.5  # unnormalize
@@ -88,7 +92,7 @@ def label_to_string(label):
     elif label == 1:
         return "paper"
     elif label == 2:
-        return "scissor"
+        return "scissors"
     elif label == 3:
         return "undefined"
 
@@ -174,7 +178,8 @@ if __name__ == "__main__":
     model = ConvNet().to(device)
     x = torch.randn(1, 3, 128, 128)
 
-    summary(model,(3,128,128))
+    #summary(model,(3,128,128))
+    summary(model, input_size=(batch_size, 3, 128, 128))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

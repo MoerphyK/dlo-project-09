@@ -1,13 +1,17 @@
 import os
-
+import torchvision
+from torchvision import transforms
 import PIL.features
 from PIL import Image
+import matplotlib.pyplot as plt
 from pathlib import Path
+from timeit import default_timer
 
 """
-Usage:
-All images in a folder named 'input' are transformed and saved in 'output'.
-Each input image results in 4 output images (original, rotation by 180, original flipped, rotated flipped)
+All the images inside a sub folder in LOAD_FOLDER are scaled to 128x128 pixels and saved in 
+the same sub folder in a folder named SAVE_FOLDER.
+Old images are overwritten if a new image has the same name.
+Old images are not deleted, therefore an old image may stay in the folder if it is not overwritten by a new one.
 """
 
 # pillow version 9.1.1 or higher needed fore transpose
@@ -15,55 +19,78 @@ Each input image results in 4 output images (original, rotation by 180, original
 # use conda-forge for community version which currently has a higher version
 # print(PIL.features.pilinfo())
 
-INPUT_FOLDER = "input"
-OUTPUT_FOLDER = "output"
+# https://pillow.readthedocs.io/en/latest/reference/ImageOps.html#PIL.ImageOps.fit
+# https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system
+# https://pillow.readthedocs.io/en/stable/reference/Image.html#the-image-class
 
-if not os.path.exists(OUTPUT_FOLDER):
-    os.makedirs(OUTPUT_FOLDER)
+start = default_timer()
 
-for filename in os.listdir(INPUT_FOLDER):
-    load_path = os.path.join(INPUT_FOLDER, filename)
+LOAD_FOLDER = "in"
+SAVE_FOLDER = "out"
+NUMBER_OF_AUGMENTED_IMAGES = 12
 
-    with Image.open(load_path) as im:
-        im = PIL.ImageOps.exif_transpose(im)
-        # im.load()
+# https://stackoverflow.com/questions/49882682/how-do-i-list-folder-in-directory
+filenames = os.listdir(LOAD_FOLDER) # get all files' and folders' names in the directory
+print("Loading following folders: " + str(filenames))
 
-        new_filename = Path(filename).stem + "_" + "ORIGINAL" + ".jpg"
-        im.save(os.path.join(OUTPUT_FOLDER, new_filename))
+print("Working on following images:\n")
+for index, subFolder in enumerate(filenames):
+    subFOlderPath = os.path.join(LOAD_FOLDER, subFolder)
 
-        im_transposed = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-        new_filename = Path(filename).stem + "_" + "FLIP_LEFT_RIGHT" + ".jpg"
-        im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+    if not os.path.exists(os.path.join(SAVE_FOLDER, subFolder)):
+        os.makedirs(os.path.join(SAVE_FOLDER, subFolder))
 
-        im_transposed = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-        new_filename = Path(filename).stem + "_" + "FLIP_TOP_BOTTOM" + ".jpg"
-        im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+    for filename in os.listdir(subFOlderPath):
+        image_number = 0
+        load_path = os.path.join(subFOlderPath, filename)
 
-        #im_transposed = im.transpose(method=Image.Transpose.ROTATE_90)
-        #new_filename = Path(filename).stem + "_" + "ROTATE_90" + ".jpg"
-        #im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+        with Image.open(load_path) as im:
+            im = PIL.ImageOps.exif_transpose(im)
 
-        im_transposed = im.transpose(method=Image.Transpose.ROTATE_180)
-        new_filename = Path(filename).stem + "_" + "ROTATE_180" + ".jpg"
-        im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+            augmentation = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize([128, 128]),
+                transforms.GaussianBlur(kernel_size=3),
+                transforms.RandomRotation(degrees=20),
+                #transforms.RandomCrop(128, 128),
+                transforms.Grayscale(),
+                #transforms.RandomPerspective(),
+                transforms.RandomVerticalFlip(),
+                transforms.RandomHorizontalFlip(),
+                transforms.ColorJitter(),
+                transforms.Normalize((0.5), (0.5)),
+                transforms.ToPILImage(),
+            ])
 
-        #im_transposed = im.transpose(method=Image.Transpose.ROTATE_270)
-        #new_filename = Path(filename).stem + "_" + "ROTATE_270" + ".jpg"
-        #im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+            for i in range (0, NUMBER_OF_AUGMENTED_IMAGES):
+                # TODO
+                # Randomly black out areas
+                # Add Gaussian noise
 
-        #im_transposed = im.transpose(method=Image.Transpose.TRANSPOSE)
-        #new_filename = Path(filename).stem + "_" + "TRANSPOSE" + ".jpg"
-        #im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+                # Random zoom
+                # Flipping
+                # shear
 
-        #im_transposed = im.transpose(method=Image.Transpose.TRANSVERSE)
-        #new_filename = Path(filename).stem + "_" + "TRANSVERSE" + ".jpg"
-        #im_transposed.save(os.path.join(OUTPUT_FOLDER, new_filename))
+                '''
+                fig, axs = plt.subplots(nrows=2, ncols=5)
+                for i in range(0, 5):
+                    for j in range(0, 2):
+                        x = augmentation(im)
+                        axs[j, i].plot(x)
+                plt.show()
+                '''
 
-        #im_rotated = im.rotate(45)
-        #new_filename = Path(filename).stem + "_" + str(45) + ".jpg"  # add degree of rotation to filename
-        #im_rotated.save(os.path.join(OUTPUT_FOLDER, new_filename))
+                im_augmented = augmentation(im)
 
-        print(f"Done: {filename}")
-        im.close()
+                #im_fitted = PIL.ImageOps.fit(image=im, size=(128, 128), centering=(0.5, 0.5))
 
+                new_filename = Path(filename).stem + "_" + str(image_number) + ".jpg"
+                save_path = os.path.join(SAVE_FOLDER, subFolder, new_filename)
+
+                im_augmented.save(save_path)
+                print(new_filename)
+                image_number = image_number + 1
+
+duration = default_timer() - start
 print("\nFinished")
+print(duration)

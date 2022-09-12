@@ -1,9 +1,3 @@
-### IMPORT Scripts ###
-
-# import data_loader as dl
-
-### IMPORTS LIB ###
-
 from cgi import test
 from matplotlib import image
 import numpy as np
@@ -17,10 +11,11 @@ from torchvision import datasets, transforms, utils
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
-import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 # from torchsummary import summary
 from torchinfo import summary
+import random
+import winsound
 
 ### Try Runtime on CUDA ###
 # torch.cuda.is_available = lambda : False # If GPU is found but CPU should be used instead
@@ -54,7 +49,7 @@ def load_data():
     return train_set, val_set
 
 
-def evaluate_model(model, device, test_loader, loss_function):
+def evaluate_model(model, device, test_loader, loss_function, plt_lists):
     '''
     model.eval() is a kind of switch for some specific layers/parts of the model that behave differently during training and inference (evaluating) time.
     For example, Dropouts Layers, BatchNorm Layers etc.
@@ -82,9 +77,9 @@ def evaluate_model(model, device, test_loader, loss_function):
             n_samples = n_samples + labels.size(0)
             n_correct = n_correct + (predicted == labels).sum().item()
 
-            for i in range(len(images)):  # ehem. batch_size
-                label = labels[i]
-                pred = predicted[i]
+            for i_label in range(len(images)):  # ehem. batch_size
+                label = labels[i_label]
+                pred = predicted[i_label]
 
                 if (label == pred):
                     n_class_correct[label] = n_class_correct[label] + 1
@@ -93,14 +88,60 @@ def evaluate_model(model, device, test_loader, loss_function):
 
         acc = 100.0 * n_correct / n_samples
         print(f'Accuracy of the network: {acc}%')
-        for i in range(label_count):
-            if n_class_samples[i] == 0:
+        plt_lists['overall_acc'].append(acc)
+
+        loss_total_per_items = loss_total / len(test_loader)
+        plt_lists['loss_value'].append(loss_total_per_items)
+
+        for i_label in range(label_count):
+            if n_class_samples[i_label] == 0:
                 acc = 0
             else:
-                acc = 100.0 * n_class_correct[i] / n_class_samples[i]
-            print(f'Accuracy of {label_to_string(i)}: {acc}%; {n_class_correct[i]}/{n_class_samples[i]} correct.')
+                acc = 100.0 * n_class_correct[i_label] / n_class_samples[i_label]
+            if i_label == 0:
+                plt_lists['rock_acc'].append(acc)
+            elif i_label == 1:
+                plt_lists['paper_acc'].append(acc)
+            elif i_label == 2:
+                plt_lists['scissor_acc'].append(acc)
+            elif i_label == 3:
+                plt_lists['undefined_acc'].append(acc)
+            print(
+                f'Accuracy of {label_to_string(i_label)}: {acc}%; {n_class_correct[i_label]}/{n_class_samples[i_label]} correct.')
 
-        return loss_total / len(test_loader)
+        return loss_total_per_items, plt_lists
+
+
+def plot_accuracy(plt_lists):
+    figure = plt.figure()
+    figure.suptitle('DLO - Baseline')
+
+    plt.subplot(3, 1, 1)
+    plt.plot(plt_lists['rock_acc'], 'b', label='rock_acc')
+    plt.plot(plt_lists['paper_acc'], 'g', label='paper_acc')
+    plt.plot(plt_lists['scissor_acc'], 'r', label='scissor_acc')
+    plt.plot(plt_lists['undefined_acc'], 'k', label='undefined_acc')
+    # plt.xlabel('Epochs')
+    plt.ylabel('Accuracy / class')
+    plt.legend(loc='upper right')
+    plt.grid('y')
+    plt.title = 'Accuracy per class'
+
+    plt.subplot(3, 1, 2)
+    plt.plot(plt_lists['overall_acc'], 'x-')
+    # plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.grid('y')
+    plt.title = 'Overall Accuracy'
+
+    plt.subplot(3, 1, 3)
+    plt.plot(plt_lists['loss_value'])
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.grid('y')
+    plt.title = 'Loss'
+
+    plt.show()
 
 
 ## Doesn't work with tensor, only a raw dataset
@@ -129,7 +170,7 @@ def label_to_string(label):
     elif label == 2:
         return "scissors"
     elif label == 3:
-        return "rest"
+        return "undefined"
 
 
 class ConvNet(nn.Module):
@@ -163,9 +204,9 @@ class ConvNet(nn.Module):
         # print(x.shape) # Just to check the dimensions
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        #x = self.dropout(x)
+        # x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        #x = self.dropout(x)
+        # x = self.dropout(x)
         x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x
@@ -197,10 +238,13 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Early stopping
-    last_loss = 100
-    patience = 2
-    trigger_times = 0
+    plt_lists = {}
+    plt_lists['rock_acc'] = []
+    plt_lists['paper_acc'] = []
+    plt_lists['scissor_acc'] = []
+    plt_lists['undefined_acc'] = []
+    plt_lists['overall_acc'] = []
+    plt_lists['loss_value'] = []
 
     for epoch in range(num_epochs):
         t0 = time.time()
@@ -219,7 +263,9 @@ if __name__ == "__main__":
                 print(f'Epoch: [{epoch + 1}/{num_epochs}],Step: [{i + 1}/{n_total_steps}], Loss: {loss.item():.8f}')
         print(f'Epoch: [{epoch + 1}/{num_epochs} finished in {int(time.time() - t0)} seconds.]')
         ### Evaluating + Early stopping the Model ###
-        current_loss = evaluate_model(model, device, test_loader, criterion)
+
+        current_loss, plt_lists = evaluate_model(model, device, test_loader, criterion, plt_lists)
+        plot_accuracy(plt_lists)
         print(f'The Current Loss: {current_loss}')
 
     ### Setup path to save model ###
@@ -227,3 +273,4 @@ if __name__ == "__main__":
     torch.save(model.state_dict(), MODEL_PATH)
 
     print('### Finished Training ###')
+    winsound.Beep(frequency=2500, duration=1000)

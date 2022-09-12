@@ -109,6 +109,7 @@ Aufbau
 - Aufgabenstellung / Ziel
 - State of the Art
 - Erwartungshaltung / Hypothese (Kaggle Repos)
+- Baseline Modell
 4. Datenaufbereitung / Dateneinlesung
 - Aufbau des Datensets
 	- Abweichung vom Kaggle Datensatz

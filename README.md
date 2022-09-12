@@ -105,12 +105,12 @@ TODO:: Erstellung von Diagrammen zur beseren Veranschaulichung.
 
 Aufbau
 1. Abstract
-3. Einleitung
+2. Einleitung
 - Aufgabenstellung / Ziel
 - State of the Art
 - Erwartungshaltung / Hypothese (Kaggle Repos)
 - Baseline Modell
-4. Datenaufbereitung / Dateneinlesung
+3. Datenaufbereitung / Dateneinlesung
 - Aufbau des Datensets
 	- Abweichung vom Kaggle Datensatz
 	- Größe
@@ -126,17 +126,17 @@ Aufbau
 		- RandomHorizontalFlip
 		- ColorJitter
 		- Normalize
-6. Netzaufbau
+4. Netzaufbau
 - Layeraufbau an AlexNet 32x32 angelehnt
 - Dropout
 - Early Stopping
 	- Speichern des bisher besten Netzes
-7. Netztraining
+5. Netztraining
 - Layeranzahl anpassen
 - Neuronenanzahl anpassen
 - Dropout Rate anpassen
 - Early Stopping anpassen
-8. Auswertungen / Vergleiche
+6. Auswertungen / Vergleiche
 - Testdatensatz Nutzung
 - Vergleichstabelle
 	- Initiales Netz ohne Augmentation, Dropout oder Early Stopping
@@ -148,7 +148,7 @@ Aufbau
 		- Neuronen Anzahl
 		- Layer Anzahl
 - Vergleich mit der initial aufgestellten Hypothese / Kaggle Repos
-9. Fazit
+7. Fazit
 - Auf Auswertung eingehen (Ergebnis des Testdatensatzes)
 - Vergleichen wie sich unser großer Datensatz im Vergleich zu den kleinen Kaggle Datensatz / Repos andere verhält.
 - Anmerkungen was sich als effektivstes Änderung herausgestellt hat

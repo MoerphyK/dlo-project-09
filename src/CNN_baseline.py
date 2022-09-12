@@ -1,20 +1,12 @@
-from cgi import test
-from matplotlib import image
-import numpy as np
-import pandas as pd
+from torch.utils.data import DataLoader
 import math
 import time
-
 import torch
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms, utils
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision
 import matplotlib.pyplot as plt
-# from torchsummary import summary
 from torchinfo import summary
-import random
 import winsound
 
 ### Try Runtime on CUDA ###
@@ -265,8 +257,10 @@ if __name__ == "__main__":
         ### Evaluating + Early stopping the Model ###
 
         current_loss, plt_lists = evaluate_model(model, device, test_loader, criterion, plt_lists)
-        plot_accuracy(plt_lists)
+
         print(f'The Current Loss: {current_loss}')
+
+    plot_accuracy(plt_lists)
 
     ### Setup path to save model ###
     MODEL_PATH = './cnn.pth'

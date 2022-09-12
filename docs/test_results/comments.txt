@@ -1,0 +1,2 @@
+baseline no early stopping:
+No noteworthy improvement after Epoch 14

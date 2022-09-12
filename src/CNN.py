@@ -79,7 +79,7 @@ def evaluate_model(model, device, test_loader, loss_function):
             n_samples = n_samples + labels.size(0)
             n_correct = n_correct + (predicted == labels).sum().item()
 
-            for i in range(len(images)): #ehem. batch_size
+            for i in range(len(images)):  # ehem. batch_size
                 label = labels[i]
                 pred = predicted[i]
 
@@ -190,12 +190,12 @@ if __name__ == "__main__":
     
     # Early stopping
     last_loss = 100
-    patience = 2
+    patience = 4
     trigger_times = 0
 
     for epoch in range(num_epochs):
         t0 = time.time()
-        for i, (images,labels) in enumerate(train_loader):
+        for i, (images, labels) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
 
@@ -206,9 +206,9 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
-            if (i+1) % math.floor(n_total_steps/10) == 0 or (i+1) % n_total_steps == 0:
-                print(f'Epoch: [{epoch+1}/{num_epochs}],Step: [{i+1}/{n_total_steps}], Loss: {loss.item():.8f}')
-        print(f'Epoch: [{epoch+1}/{num_epochs} finished in {int(time.time() - t0)} seconds.]')
+            if (i + 1) % math.floor(n_total_steps / 10) == 0 or (i + 1) % n_total_steps == 0:
+                print(f'Epoch: [{epoch + 1}/{num_epochs}],Step: [{i + 1}/{n_total_steps}], Loss: {loss.item():.8f}')
+        print(f'Epoch: [{epoch + 1}/{num_epochs} finished in {int(time.time() - t0)} seconds.]')
         ### Evaluating + Early stopping the Model ###
         current_loss = evaluate_model(model, device, test_loader, criterion)
         print(f'The Current Loss: {current_loss}')

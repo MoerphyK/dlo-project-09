@@ -69,9 +69,9 @@ def evaluate_model(model, device, test_loader, loss_function, plt_lists):
             n_samples = n_samples + labels.size(0)
             n_correct = n_correct + (predicted == labels).sum().item()
 
-            for i_label in range(len(images)):  # ehem. batch_size
-                label = labels[i_label]
-                pred = predicted[i_label]
+            for i in range(len(images)):  # ehem. batch_size
+                label = labels[i]
+                pred = predicted[i]
 
                 if (label == pred):
                     n_class_correct[label] = n_class_correct[label] + 1
@@ -238,6 +238,11 @@ if __name__ == "__main__":
     plt_lists['overall_acc'] = []
     plt_lists['loss_value'] = []
 
+    # Early stopping
+    last_loss = 100
+    patience = 2
+    trigger_times = 0
+
     for epoch in range(num_epochs):
         t0 = time.time()
         for i, (images, labels) in enumerate(train_loader):
@@ -255,16 +260,26 @@ if __name__ == "__main__":
                 print(f'Epoch: [{epoch + 1}/{num_epochs}],Step: [{i + 1}/{n_total_steps}], Loss: {loss.item():.8f}')
         print(f'Epoch: [{epoch + 1}/{num_epochs} finished in {int(time.time() - t0)} seconds.]')
         ### Evaluating + Early stopping the Model ###
-
         current_loss, plt_lists = evaluate_model(model, device, test_loader, criterion, plt_lists)
-
         print(f'The Current Loss: {current_loss}')
 
-    plot_accuracy(plt_lists)
+        if current_loss > last_loss:
+            trigger_times += 1
+            print(f'Trigger Times: {trigger_times}')
 
-    ### Setup path to save model ###
-    MODEL_PATH = './cnn.pth'
-    torch.save(model.state_dict(), MODEL_PATH)
+            if trigger_times >= patience:
+                print('Early stopping!')
+                break
+        else:
+            ### Setup path to save model ###
+            MODEL_PATH = './cnn.pth'
+            torch.save(model.state_dict(), MODEL_PATH)
+            # Reset Early Stopping Trigger
+            print(f'Trigger times back to 0.')
+            trigger_times = 0
+
+        last_loss = current_loss
 
     print('### Finished Training ###')
     winsound.Beep(frequency=2500, duration=1000)
+    plot_accuracy(plt_lists)

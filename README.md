@@ -87,3 +87,68 @@ ersten Phase mit un ̈uberwachtem Lernen oder halb- ̈uberwachtem Lernen
 
 
 # Phase 5: Fertigstellung des Berichts
+Salmen:
+``` 
+Besonders wichtig ist mir ein systematisches, wissenschaftliches Vorgehen, das in Ihrem
+Abschlussbericht dementsprechend dokumentiert wird. Stellen Sie sich z.B. vor, dass Sie Ihre
+Erfahrungen/Erkenntnisse während der Entwicklung für Kollegen oder Auftraggeber festhalten. Alle
+relevanten Entscheidungen (etwa für oder gegen bestimmte Module) sollten genauso gut begründet
+werden wie die konkrete Wahl von Parametern. Typischerweise wird dafür ein iterativer Prozess nötig
+sein mit jeweils zielgerichteten Experimenten.
+```
+## Bericht Aufbau
+```
+Note: Zu jedem Schritt, welcher die Leistung verändern kann sollte es eine kleine vorher nachher Anekdote geben.
+Mit kleineren Codesnippets und Diagramme.
+```
+TODO:: Erstellung von Diagrammen zur beseren Veranschaulichung.
+
+Aufbau
+1. Abstract
+3. Einleitung
+- Aufgabenstellung / Ziel
+- State of the Art
+- Erwartungshaltung / Hypothese (Kaggle Repos)
+4. Datenaufbereitung / Dateneinlesung
+- Aufbau des Datensets
+	- Abweichung vom Kaggle Datensatz
+	- Größe
+	- Klassenkriterien beschreiben
+- Entscheidung Klassenanzahl (nur Optionen beschreiben mit Gründen)
+- Aufbereitung
+	- Größenverhältnis
+	- Erzeugen neuer Bilder
+		- GaussianBlur
+		- RandomRotation
+		- Grayscale
+		- RandomVerticalFlip
+		- RandomHorizontalFlip
+		- ColorJitter
+		- Normalize
+6. Netzaufbau
+- Layeraufbau an AlexNet 32x32 angelehnt
+- Dropout
+- Early Stopping
+	- Speichern des bisher besten Netzes
+7. Netztraining
+- Layeranzahl anpassen
+- Neuronenanzahl anpassen
+- Dropout Rate anpassen
+- Early Stopping anpassen
+8. Auswertungen / Vergleiche
+- Testdatensatz Nutzung
+- Vergleichstabelle
+	- Initiales Netz ohne Augmentation, Dropout oder Early Stopping
+	- Nur Augmentation
+	- Dropout hinzufügen
+	- Early Stopping hinzufügen
+	- Hyperparameter Tuning
+		- Learnrate
+		- Neuronen Anzahl
+		- Layer Anzahl
+- Vergleich mit der initial aufgestellten Hypothese / Kaggle Repos
+9. Fazit
+- Auf Auswertung eingehen (Ergebnis des Testdatensatzes)
+- Vergleichen wie sich unser großer Datensatz im Vergleich zu den kleinen Kaggle Datensatz / Repos andere verhält.
+- Anmerkungen was sich als effektivstes Änderung herausgestellt hat
+- ggf. Ausblick

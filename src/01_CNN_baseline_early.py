@@ -186,7 +186,7 @@ class ConvNet(nn.Module):
         self.fc3 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
-        # self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.5)
 
     def forward(self, x):
         # calling conv layer with relu optimization function
@@ -196,9 +196,9 @@ class ConvNet(nn.Module):
         # print(x.shape) # Just to check the dimensions
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x

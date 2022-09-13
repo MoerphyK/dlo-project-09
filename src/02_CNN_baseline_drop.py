@@ -18,6 +18,7 @@ print(f"device: {device}")
 num_epochs = 20
 batch_size = 32
 learning_rate = 0.0005
+do_rate = 0.4
 
 label_count = 4
 
@@ -186,7 +187,7 @@ class ConvNet(nn.Module):
         self.fc3 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(do_rate)
 
     def forward(self, x):
         # calling conv layer with relu optimization function
@@ -281,5 +282,5 @@ if __name__ == "__main__":
         last_loss = current_loss
 
     print('### Finished Training ###')
-    winsound.Beep(frequency=2500, duration=1000)
+    winsound.Beep(frequency=200, duration=1000)
     plot_accuracy(plt_lists)

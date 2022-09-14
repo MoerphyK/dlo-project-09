@@ -57,8 +57,8 @@ for index, subFolder in enumerate(filenames):
                 #transforms.RandomPerspective(),
                 transforms.RandomVerticalFlip(),
                 transforms.RandomHorizontalFlip(),
-                transforms.ColorJitter(),
-                transforms.Normalize((0.5), (0.5)),
+                transforms.ColorJitter(), # TODO do transform on RGB image then collorJitter
+                transforms.Normalize((0.5), (0.5)), # TODO inplace?
                 transforms.ToPILImage(),
             ])
 

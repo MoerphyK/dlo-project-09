@@ -25,8 +25,8 @@ Old images are not deleted, therefore an old image may stay in the folder if it 
 
 start = default_timer()
 
-LOAD_FOLDER = "../assets/baseline/"
-SAVE_FOLDER = "../assets/augmented/"
+LOAD_FOLDER = "../assets/test/"
+SAVE_FOLDER = "../assets/test_augmented/"
 NUMBER_OF_AUGMENTED_IMAGES = 12
 
 # https://stackoverflow.com/questions/49882682/how-do-i-list-folder-in-directory

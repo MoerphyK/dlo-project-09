@@ -321,7 +321,7 @@ if __name__ == "__main__":
     print(f'The rock accuracy is {best_acc["rock"]}%')
     print(f'The paper accuracy is {best_acc["paper"]}%')
     print(f'The scissor accuracy is {best_acc["scissor"]}%')
-    print(f'The scissor accuracy is {best_acc["undefined"]}%')
+    print(f'The undefined accuracy is {best_acc["undefined"]}%')
     print(f'At epoch {best_acc["epoch"]}')
 
     with open(TXT_PATH, 'w') as convert_file:
@@ -329,9 +329,14 @@ if __name__ == "__main__":
             convert_file.write(f'Total: {best_acc["total"]}%\n')
             convert_file.write(f'Rock: {best_acc["rock"]}%\n')
             convert_file.write(f'Paper: {best_acc["paper"]}%\n')
-            convert_file.write(f'Scissor: {best_acc["scissor"]}%')
+            convert_file.write(f'Scissor: {best_acc["scissor"]}%\n')
             convert_file.write(f'Undefined: {best_acc["undefined"]}%')
-            
+            convert_file.write(f'\n\nHyperparemter:')
+            convert_file.write(f'Batch Size: {batch_size}\n')
+            convert_file.write(f'Learning Rate: {learning_rate}\n')
+            convert_file.write(f'Drop Out Rate: {do_rate}\n')
+            convert_file.write(f'Early Stopping Patience: {patience}\n')
+
 
     winsound.Beep(frequency=200, duration=1000)
     plot_accuracy(plt_lists)

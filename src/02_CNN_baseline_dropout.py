@@ -321,7 +321,7 @@ if __name__ == "__main__":
     print(f'The rock accuracy is {best_acc["rock"]}%')
     print(f'The paper accuracy is {best_acc["paper"]}%')
     print(f'The scissor accuracy is {best_acc["scissor"]}%')
-    print(f'The scissor accuracy is {best_acc["undefined"]}%')
+    print(f'The undefined accuracy is {best_acc["undefined"]}%')
     print(f'At epoch {best_acc["epoch"]}')
 
     with open(TXT_PATH, 'w') as convert_file:

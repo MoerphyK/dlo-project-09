@@ -21,8 +21,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
 ## PATHs
-model_path = "cnn_04_augmented.pth"
-data_path = "../assets/test_augmented/"
+model_path = "cnn_03_baseline_lr_0001.pth"
+data_path = "../assets/baseline/"
 
 # General
 label_count = 4

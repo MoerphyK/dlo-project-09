@@ -20,16 +20,16 @@ print(f"Device: {device}")
 label_count = 4
 
 ## PATHs
-MODEL_PATH = "cnn_04_augmented.pth"
+MODEL_PATH = "cnn_11_augmented_early.pth"
 DATA_PATH = "../assets/augmented/"
-PLOT_PATH = "../docs/test_results/04_augmented_plot.png"
-TXT_PATH = "../docs/test_results/04_augmented.txt"
+PLOT_PATH = "../docs/test_results/11_augmented_early_plot.png"
+TXT_PATH = "../docs/test_results/11_augmented_early.txt"
 
 # Hyperparameters
 num_epochs = 50
 batch_size = 32
 learning_rate = 0.0001
-do_rate = 0.6
+do_rate = 0.5
 
 # Early stopping
 last_loss = 100
@@ -43,6 +43,7 @@ best_acc['rock'] = 0
 best_acc['scissor'] = 0
 best_acc['paper'] = 0
 best_acc['undefined'] = 0
+best_acc['epoch'] = 0
 
 current_acc = {}
 current_acc['total'] = 0
@@ -220,9 +221,11 @@ class ConvNet(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, 5)
 
         # Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
-        self.fc1 = nn.Linear(64 * 29 * 29, 1024)
-        self.fc2 = nn.Linear(1024, 256)
-        self.fc3 = nn.Linear(256, label_count)
+        self.fc1 = nn.Linear(64 * 29 * 29, 5000)
+        self.fc2 = nn.Linear(5000, 3000)
+        self.fc3 = nn.Linear(3000, 1000)
+        self.fc4 = nn.Linear(1000, 256)
+        self.fc5 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
         self.dropout = nn.Dropout(do_rate)
@@ -238,7 +241,10 @@ class ConvNet(nn.Module):
         x = self.dropout(x)
         x = F.relu(self.fc2(x))
         x = self.dropout(x)
-        x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
+        x = F.relu(self.fc3(x))
+        x = self.dropout(x)
+        x = F.relu(self.fc4(x))
+        x = self.fc5(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x
 
@@ -329,15 +335,13 @@ if __name__ == "__main__":
             convert_file.write(f'Total: {best_acc["total"]}%\n')
             convert_file.write(f'Rock: {best_acc["rock"]}%\n')
             convert_file.write(f'Paper: {best_acc["paper"]}%\n')
-            convert_file.write(f'Scissor: {best_acc["scissor"]}%\n')
+            convert_file.write(f'Scissor: {best_acc["scissor"]}\n%')
             convert_file.write(f'Undefined: {best_acc["undefined"]}%')
-            convert_file.write(f'\n\nHyperparemter:')
+            convert_file.write(f'\nHyperparemter:')
             convert_file.write(f'Batch Size: {batch_size}\n')
             convert_file.write(f'Learning Rate: {learning_rate}\n')
             convert_file.write(f'Drop Out Rate: {do_rate}\n')
             convert_file.write(f'Early Stopping Patience: {patience}\n')
-
-            
 
     winsound.Beep(frequency=200, duration=1000)
     plot_accuracy(plt_lists)

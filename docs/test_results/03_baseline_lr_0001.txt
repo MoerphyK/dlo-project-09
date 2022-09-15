@@ -1,0 +1,5 @@
+Accuracies in epoch 11:
+Total: 88.96396396396396%
+Rock: 88.88888888888889%
+Paper: 95.49549549549549%
+Scissor: 93.75%Undefined: 72.15189873417721%

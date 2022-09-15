@@ -20,16 +20,16 @@ print(f"Device: {device}")
 label_count = 4
 
 ## PATHs
-MODEL_PATH = "cnn_02_baseline_dropout_04.pth"
+MODEL_PATH = "cnn_02_baseline_dropout_06.pth"
 DATA_PATH = "../assets/baseline/"
-PLOT_PATH = "../docs/test_results/02_baseline_dropout_04_plot.png"
-TXT_PATH = "../docs/test_results/02_baseline_dropout_04.txt"
+PLOT_PATH = "../docs/test_results/02_baseline_dropout_06_plot.png"
+TXT_PATH = "../docs/test_results/02_baseline_dropout_06.txt"
 
 # Hyperparameters
 num_epochs = 50
 batch_size = 32
 learning_rate = 0.0005
-do_rate = 0.4
+do_rate = 0.6
 
 # Early stopping
 last_loss = 100

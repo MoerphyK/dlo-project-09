@@ -1,0 +1,5 @@
+Accuracies in epoch 49: (run out of epochs)
+Total: 85.58558558558559%
+Rock: 84.12698412698413%
+Paper: 90.990990990991%
+Scissor: 87.5%Undefined: 77.21518987341773%

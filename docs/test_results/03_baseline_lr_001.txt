@@ -1,0 +1,5 @@
+Accuracies in epoch 16:
+Total: 85.8108108108108%
+Rock: 84.92063492063492%
+Paper: 94.5945945945946%
+Scissor: 92.1875%Undefined: 64.55696202531645%

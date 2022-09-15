@@ -16,69 +16,23 @@ import winsound
 ### Try Runtime on CUDA ###
 # torch.cuda.is_available = lambda : False # If GPU is found but CPU should be used instead
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Device: {device}")
-label_count = 4
-
-## PATHs
-MODEL_PATH = "cnn_01_baseline_early.pth"
-DATA_PATH = "../assets/baseline/"
-PLOT_PATH = "../docs/test_results/01_baseline_early_plot.png"
-TXT_PATH = "../docs/test_results/01_baseline_early.txt"
+print(f"device: {device}")
 
 # Hyperparameters
-num_epochs = 50
+num_epochs = 20
 batch_size = 32
-learning_rate = 0.0005
+learning_rate = 0.0001
 do_rate = 0.5
+
+# Count of classes
+label_count = 3
+
 
 # Early stopping
 last_loss = 100
 patience = 4
 trigger_times = 0
 
-# Temporary variables
-best_acc = {}
-best_acc['total'] = 0
-best_acc['rock'] = 0
-best_acc['scissor'] = 0
-best_acc['paper'] = 0
-best_acc['undefined'] = 0
-best_acc['epoch'] = 0
-
-current_acc = {}
-current_acc['total'] = 0
-current_acc['rock'] = 0
-current_acc['scissor'] = 0
-current_acc['paper'] = 0
-current_acc['undefined'] = 0
-
-#############
-### Tools ###
-#############
-
-## Doesn't work with tensor, only a raw dataset
-def show_img(d):
-    # Print (dataset [0] [1]: hier d[1]) # the first dimension is the number of images, the second dimension is 1, and label is returned
-    # Print (dataset [0] [0]: hier d[0]) # is 0 and returns picture data
-    plt.imshow(d[0].permute(1, 2, 0), interpolation='nearest')
-    plt.title([k for k, v in dataset_index.items() if v == d[1]][0])
-    plt.axis('off')
-    plt.show()
-
-
-def label_to_string(label):
-    if label == 0:
-        return "rock"
-    elif label == 1:
-        return "paper"
-    elif label == 2:
-        return "scissors"
-    elif label == 3:
-        return "undefined"
-
-####################
-### Data Loading ###
-####################
 
 def load_data():
     # Transforming Input into tensors for CNN usage
@@ -87,7 +41,7 @@ def load_data():
          transforms.ToTensor(),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    dataset = datasets.ImageFolder(DATA_PATH, transform=transform)
+    dataset = datasets.ImageFolder(f'../assets/baseline3/', transform=transform)
     global dataset_index
     dataset_index = dataset.class_to_idx
 
@@ -98,9 +52,6 @@ def load_data():
                                                        generator=torch.Generator().manual_seed(42))
     return train_set, val_set
 
-##################
-### Evaluation ###
-##################
 
 def evaluate_model(model, device, test_loader, loss_function, plt_lists):
     '''
@@ -139,10 +90,9 @@ def evaluate_model(model, device, test_loader, loss_function, plt_lists):
 
                 n_class_samples[label] = n_class_samples[label] + 1
 
-        total_acc = 100.0 * n_correct / n_samples
-        print(f'Accuracy of the network: {total_acc}%')
-        plt_lists['overall_acc'].append(total_acc)
-        current_acc['total'] = total_acc
+        acc = 100.0 * n_correct / n_samples
+        print(f'Accuracy of the network: {acc}%')
+        plt_lists['overall_acc'].append(acc)
 
         loss_total_per_items = loss_total / len(test_loader)
         plt_lists['loss_value'].append(loss_total_per_items)
@@ -154,17 +104,14 @@ def evaluate_model(model, device, test_loader, loss_function, plt_lists):
                 acc = 100.0 * n_class_correct[i_label] / n_class_samples[i_label]
             if i_label == 0:
                 plt_lists['rock_acc'].append(acc)
-                current_acc['rock'] = acc
             elif i_label == 1:
                 plt_lists['paper_acc'].append(acc)
-                current_acc['paper'] = acc
             elif i_label == 2:
                 plt_lists['scissor_acc'].append(acc)
-                current_acc['scissor'] = acc
             elif i_label == 3:
                 plt_lists['undefined_acc'].append(acc)
-                current_acc['undefined'] = acc
-            print(f'Accuracy of {label_to_string(i_label)}: {acc}%; {n_class_correct[i_label]}/{n_class_samples[i_label]} correct.')
+            print(
+                f'Accuracy of {label_to_string(i_label)}: {acc}%; {n_class_correct[i_label]}/{n_class_samples[i_label]} correct.')
 
         return loss_total_per_items, plt_lists
 
@@ -198,12 +145,37 @@ def plot_accuracy(plt_lists):
     plt.grid('y')
     plt.title = 'Loss'
 
-    plt.savefig(PLOT_PATH)
     plt.show()
 
-###########
-### CNN ###
-###########
+
+## Doesn't work with tensor, only a raw dataset
+def show_img(d):
+    # Print (dataset [0] [1]: hier d[1]) # the first dimension is the number of images, the second dimension is 1, and label is returned
+    # Print (dataset [0] [0]: hier d[0]) # is 0 and returns picture data
+    plt.imshow(d[0].permute(1, 2, 0), interpolation='nearest')
+    plt.title([k for k, v in dataset_index.items() if v == d[1]][0])
+    plt.axis('off')
+    plt.show()
+
+
+# def conv_output_shape(h_w, kernel_size=1, stride=1, pad=0, dilation=1):
+#     from math import floor
+#     if type(kernel_size) is not tuple:
+#         kernel_size = (kernel_size, kernel_size)
+#     h = floor( ((h_w[0] + (2 * pad) - ( dilation * (kernel_size[0] - 1) ) - 1 )/ stride) + 1)
+#     w = floor( ((h_w[1] + (2 * pad) - ( dilation * (kernel_size[1] - 1) ) - 1 )/ stride) + 1)
+#     return h, w
+
+def label_to_string(label):
+    if label == 0:
+        return "rock"
+    elif label == 1:
+        return "paper"
+    elif label == 2:
+        return "scissors"
+    elif label == 3:
+        return "undefined"
+
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -226,7 +198,7 @@ class ConvNet(nn.Module):
         self.fc3 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
-        # self.dropout = nn.Dropout(do_rate)
+        self.dropout = nn.Dropout(do_rate)
 
     def forward(self, x):
         # calling conv layer with relu optimization function
@@ -236,16 +208,13 @@ class ConvNet(nn.Module):
         # print(x.shape) # Just to check the dimensions
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x
 
-############
-### Main ###
-############
 
 if __name__ == "__main__":
     ### Load data ###
@@ -255,9 +224,19 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
     n_total_steps = len(train_loader)
 
+    # Test for dataloading
+    # images, labels = next(iter(train_loader))
+    # show_img(test_dataset[0])
+    # show_img(test_dataset[4])
+    # show_img(test_dataset[10])
+    # show_img(test_dataset[15])
+    # print(f"Types: Image: {type(images[0])}; Label: {type(labels[0])}")
+    # print(f"Shape: Image: {images[0].shape}; Label: {labels[0].shape}")
+    # print(f"Values: Image: {images[0]}; Label: {label_to_string(labels[0])}")
+    # exit(0)
+
     ### Setup for ConvModule ###
     model = ConvNet().to(device)
-    # model.load_state_dict(torch.load(MODEL_PATH)) # Enable if the training of the loaded pth model shall continue
     summary(model, input_size=(batch_size, 3, 128, 128))
 
     criterion = nn.CrossEntropyLoss()
@@ -271,7 +250,7 @@ if __name__ == "__main__":
     plt_lists['overall_acc'] = []
     plt_lists['loss_value'] = []
 
-    t_total = time.time()
+
     for epoch in range(num_epochs):
         t0 = time.time()
         for i, (images, labels) in enumerate(train_loader):
@@ -285,11 +264,9 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
-        ### Output Epoch Progess
             if (i + 1) % math.floor(n_total_steps / 10) == 0 or (i + 1) % n_total_steps == 0:
                 print(f'Epoch: [{epoch + 1}/{num_epochs}],Step: [{i + 1}/{n_total_steps}], Loss: {loss.item():.8f}')
         print(f'Epoch: [{epoch + 1}/{num_epochs} finished in {int(time.time() - t0)} seconds.]')
-        
         ### Evaluating + Early stopping the Model ###
         current_loss, plt_lists = evaluate_model(model, device, test_loader, criterion, plt_lists)
         print(f'The Current Loss: {current_loss}')
@@ -303,36 +280,14 @@ if __name__ == "__main__":
                 break
         else:
             ### Setup path to save model ###
+            MODEL_PATH = './cnn.pth'
             torch.save(model.state_dict(), MODEL_PATH)
             # Reset Early Stopping Trigger
             print(f'Trigger times back to 0.')
             trigger_times = 0
-            best_acc['total'] = current_acc['total']
-            best_acc['rock'] = current_acc['rock']
-            best_acc['paper'] = current_acc['paper']
-            best_acc['scissor'] = current_acc['scissor']
-            best_acc['undefined'] = current_acc['undefined']
-            best_acc['epoch'] = epoch + 1
-            
 
         last_loss = current_loss
 
-    print(f'### Finished Training in {int(time.time() - t_total)} seconds ###')
-    print(f'The total accuracy is {best_acc["total"]}%')
-    print(f'The rock accuracy is {best_acc["rock"]}%')
-    print(f'The paper accuracy is {best_acc["paper"]}%')
-    print(f'The scissor accuracy is {best_acc["scissor"]}%')
-    print(f'The scissor accuracy is {best_acc["undefined"]}%')
-    print(f'At epoch {best_acc["epoch"]}')
-
-    with open(TXT_PATH, 'w') as convert_file:
-            convert_file.write(f'Accuracies in epoch {best_acc["epoch"]}:\n')
-            convert_file.write(f'Total: {best_acc["total"]}%\n')
-            convert_file.write(f'Rock: {best_acc["rock"]}%\n')
-            convert_file.write(f'Paper: {best_acc["paper"]}%\n')
-            convert_file.write(f'Scissor: {best_acc["scissor"]}%')
-            convert_file.write(f'Undefined: {best_acc["undefined"]}%')
-            
-
-    winsound.Beep(frequency=200, duration=1000)
+    print('### Finished Training ###')
+    winsound.Beep(frequency=200, duration=500)
     plot_accuracy(plt_lists)

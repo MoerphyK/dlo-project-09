@@ -17,8 +17,8 @@ print(f"device: {device}")
 # Hyperparameters
 num_epochs = 20
 batch_size = 32
-learning_rate = 0.0005
-do_rate = 0.4
+learning_rate = 0.0001
+do_rate = 0.5
 
 label_count = 4
 
@@ -30,7 +30,7 @@ def load_data():
          transforms.ToTensor(),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    dataset = datasets.ImageFolder(f'../assets/baseline/', transform=transform)
+    dataset = datasets.ImageFolder(f'../assets/augmented/', transform=transform)
     global dataset_index
     dataset_index = dataset.class_to_idx
 
@@ -282,5 +282,5 @@ if __name__ == "__main__":
         last_loss = current_loss
 
     print('### Finished Training ###')
-    winsound.Beep(frequency=200, duration=1000)
+    winsound.Beep(frequency=200, duration=500)
     plot_accuracy(plt_lists)

@@ -20,16 +20,16 @@ print(f"Device: {device}")
 label_count = 4
 
 ## PATHs
-MODEL_PATH = "cnn_01_baseline_early.pth"
+MODEL_PATH = "cnn_02_baseline_dropout_04.pth"
 DATA_PATH = "../assets/baseline/"
-PLOT_PATH = "../docs/test_results/01_baseline_early_plot.png"
-TXT_PATH = "../docs/test_results/01_baseline_early.txt"
+PLOT_PATH = "../docs/test_results/02_baseline_dropout_04_plot.png"
+TXT_PATH = "../docs/test_results/02_baseline_dropout_04.txt"
 
 # Hyperparameters
 num_epochs = 50
 batch_size = 32
 learning_rate = 0.0005
-do_rate = 0.5
+do_rate = 0.4
 
 # Early stopping
 last_loss = 100
@@ -43,7 +43,6 @@ best_acc['rock'] = 0
 best_acc['scissor'] = 0
 best_acc['paper'] = 0
 best_acc['undefined'] = 0
-best_acc['epoch'] = 0
 
 current_acc = {}
 current_acc['total'] = 0
@@ -226,7 +225,7 @@ class ConvNet(nn.Module):
         self.fc3 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
-        # self.dropout = nn.Dropout(do_rate)
+        self.dropout = nn.Dropout(do_rate)
 
     def forward(self, x):
         # calling conv layer with relu optimization function
@@ -236,9 +235,9 @@ class ConvNet(nn.Module):
         # print(x.shape) # Just to check the dimensions
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x

@@ -58,10 +58,11 @@ def truncate(f, n):
 
 def load_data():
     # Transforming Input into tensors for CNN usage
-    transform = transforms.Compose(
-        [transforms.Resize([128, 128]),
+    transform = transforms.Compose([
          transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+         transforms.Resize([128, 128]),
+         transforms.Grayscale()
+        ])
 
     dataset = datasets.ImageFolder(data_path, transform=transform)
     global dataset_index

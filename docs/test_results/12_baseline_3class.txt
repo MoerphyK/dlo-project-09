@@ -1,0 +1,12 @@
+Accuracies in epoch 11:
+Total: 95.23809523809524%
+Rock: 94.0677966101695%
+Paper: 94.02985074626865%
+Scissor: 97.61904761904762
+%
+
+Hyperparemter:
+Batch Size: 32
+Learning Rate: 0.0001
+Drop Out Rate: 0.6
+Early Stopping Patience: 4

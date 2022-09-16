@@ -2,4 +2,5 @@ Accuracies in epoch 19:
 Total: 88.73873873873873%
 Rock: 92.06349206349206%
 Paper: 94.5945945945946%
-Scissor: 95.3125%Undefined: 64.55696202531645%
+Scissor: 95.3125%
+Undefined: 64.55696202531645%

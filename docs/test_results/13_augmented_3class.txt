@@ -1,0 +1,12 @@
+Accuracies in epoch 38:
+Total: 98.49624060150376%
+Rock: 98.31985065339141%
+Paper: 98.55595667870035%
+Scissor: 98.60774818401937
+%
+
+Hyperparemter:
+Batch Size: 32
+Learning Rate: 0.0001
+Drop Out Rate: 0.6
+Early Stopping Patience: 4

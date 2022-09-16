@@ -21,8 +21,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
 ## PATHs
-model_path = "cnn_03_baseline_lr_0001.pth"
-data_path = "../assets/baseline/"
+model_path = "cnn_11_augmented_early.pth"
+data_path = "../assets/augmented/"
 
 # General
 label_count = 4
@@ -61,7 +61,8 @@ def load_data():
     transform = transforms.Compose([
          transforms.ToTensor(),
          transforms.Resize([128, 128]),
-         transforms.Grayscale()
+        #  transforms.Grayscale(),
+        #  transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
     dataset = datasets.ImageFolder(data_path, transform=transform)
@@ -90,9 +91,11 @@ class ConvNet(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, 5)
 
         # Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
-        self.fc1 = nn.Linear(64 * 29 * 29, 1024)
-        self.fc2 = nn.Linear(1024, 256)
-        self.fc3 = nn.Linear(256, label_count)
+        self.fc1 = nn.Linear(64 * 29 * 29, 5000)
+        self.fc2 = nn.Linear(5000, 3000)
+        self.fc3 = nn.Linear(3000, 1000)
+        self.fc4 = nn.Linear(1000, 256)
+        self.fc5 = nn.Linear(256, label_count)
 
         # Define proportion or neurons to dropout
         self.dropout = nn.Dropout(do_rate)
@@ -108,7 +111,10 @@ class ConvNet(nn.Module):
         x = self.dropout(x)
         x = F.relu(self.fc2(x))
         x = self.dropout(x)
-        x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
+        x = F.relu(self.fc3(x))
+        x = self.dropout(x)
+        x = F.relu(self.fc4(x))
+        x = self.fc5(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x
 

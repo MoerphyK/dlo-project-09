@@ -1,6 +1,9 @@
-Accuracies in epoch 3:
-Total: 91.12303166637827%
-Rock: 93.5080405002978%
-Paper: 90.61509194673431%
-Scissor: 92.63990267639903%
-Undefined: 84.64163822525597%
+Accuracies in epoch 49:
+Total: 95.15487108496279%
+Rock: 96.42644431209052%
+Paper: 97.90741915028535%
+Scissor: 98.05352798053528%Undefined: 82.36632536973833%
+Hyperparemter:Batch Size: 32
+Learning Rate: 0.0001
+Drop Out Rate: 0.5
+Early Stopping Patience: 4

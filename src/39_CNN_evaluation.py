@@ -21,7 +21,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
 ## PATHs
-model_path = "cnn_31_baseline_64_64.pth"
+model_path = "cnn_32_baseline_patience_3.pth"
 data_path = "../assets/test/"
 
 # General

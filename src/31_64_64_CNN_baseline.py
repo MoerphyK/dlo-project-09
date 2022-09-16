@@ -20,10 +20,10 @@ print(f"Device: {device}")
 label_count = 4
 
 ## PATHs
-MODEL_PATH = "cnn31_baseline_64_64.pth"
-DATA_PATH = "../assets/baseline_color_augmented/"
-PLOT_PATH = "../docs/test_results/31_baseline_64_64_plot.png"
-TXT_PATH = "../docs/test_results/31_baseline_64_64.txt"
+MODEL_PATH = "199_cnn31_baseline_64_64.pth"
+DATA_PATH = "../assets/augmented_new/"
+PLOT_PATH = "../docs/test_results/199_baseline_64_64_plot.png"
+TXT_PATH = "../docs/test_results/199_baseline_64_64.txt"
 
 # Hyperparameters
 num_epochs = 50
@@ -86,7 +86,6 @@ def load_data():
         [transforms.Resize([64, 64]),
          transforms.ToTensor(),
          transforms.Grayscale(),
-         transforms.Normalize((0.5), (0.5))
          ])
 
     dataset = datasets.ImageFolder(DATA_PATH, transform=transform)
@@ -96,8 +95,7 @@ def load_data():
     test_size = int(len(dataset) * 0.1)
     train_size = len(dataset) - test_size
     print(f"Test Size: {test_size}; Train Size: {train_size}; Total in Dataset: {len(dataset)}")
-    train_set, val_set = torch.utils.data.random_split(dataset, [train_size, test_size],
-                                                       generator=torch.Generator().manual_seed(42))
+    train_set, val_set = torch.utils.data.random_split(dataset, [train_size, test_size], generator=torch.Generator().manual_seed(42))
     return train_set, val_set
 
 ##################

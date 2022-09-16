@@ -1,0 +1,12 @@
+Accuracies in epoch 12:
+Total: 90.27179006560449%
+Rock: 94.04367968232958%
+Paper: 75.16005121638925%
+Scissor: 92.60726072607261%
+Undefined: 91.95026178010471%
+
+Hyperparemter:
+Batch Size: 32
+Learning Rate: 0.0001
+Drop Out Rate: 0.5
+Early Stopping Patience: 4

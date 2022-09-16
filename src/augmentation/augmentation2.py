@@ -51,14 +51,12 @@ for index, subFolder in enumerate(filenames):
                 transforms.ToTensor(),
                 transforms.Resize([128, 128]),
                 transforms.ColorJitter(),
-                transforms.GaussianBlur(kernel_size=3),
                 transforms.RandomRotation(degrees=20),
-                #transforms.RandomCrop(128, 128),
-                # transforms.Grayscale(),
-                #transforms.RandomPerspective(),
+                transforms.RandomPerspective(),
                 transforms.RandomVerticalFlip(),
                 transforms.RandomHorizontalFlip(),
-                #transforms.Normalize((0.5), (0.5)), # is this inplace? # transforms.ToTensor already normalizes tp [0,1]
+                transforms.GaussianBlur(kernel_size=5),
+                transforms.Grayscale(),
                 transforms.ToPILImage(),
             ])
 

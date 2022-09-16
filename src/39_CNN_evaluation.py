@@ -21,7 +21,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
 ## PATHs
-model_path = "cnn_22_baseline_color_augmented_fix.pth"
+model_path = "cnn_31_baseline_64_64.pth"
 data_path = "../assets/test/"
 
 # General
@@ -58,11 +58,12 @@ def truncate(f, n):
 
 def load_data():
     # Transforming Input into tensors for CNN usage
-    transform = transforms.Compose([
+    transform = transforms.Compose(
+        [transforms.Resize([64, 64]),
          transforms.ToTensor(),
-         transforms.Resize([128, 128]),
-         transforms.Grayscale()
-        ])
+         transforms.Grayscale(),
+         transforms.Normalize((0.5), (0.5))
+         ])
 
     dataset = datasets.ImageFolder(data_path, transform=transform)
     global dataset_index
@@ -83,16 +84,17 @@ class ConvNet(nn.Module):
 
         ## 61 = floor( (128 - 8 + 2 * 0)/2 + 1)
         ## 61 = Abgerundet: (ImageSize - KernelSize + Stride * Padding)/Stride? + 1)
-        self.conv1 = nn.Conv2d(1, 32, 5)
+        self.conv1 = nn.Conv2d(1, 16, 5)
 
         # MaxPool2d(Kernelsize,Stride)
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(32, 64, 5)
+        self.conv2 = nn.Conv2d(16, 32, 5)
 
         # Linear(Inputsize:Outputsize of laster layer * Kernel Size,Outputsize)
-        self.fc1 = nn.Linear(64 * 29 * 29, 1024)
+        self.fc1 = nn.Linear(32 * 13 * 13, 1024)
         self.fc2 = nn.Linear(1024, 256)
-        self.fc3 = nn.Linear(256, label_count)
+        self.fc3 = nn.Linear(256, 128)
+        self.fc5 = nn.Linear(128, label_count)
 
         # Define proportion or neurons to dropout
         self.dropout = nn.Dropout(do_rate)
@@ -108,7 +110,8 @@ class ConvNet(nn.Module):
         x = self.dropout(x)
         x = F.relu(self.fc2(x))
         x = self.dropout(x)
-        x = self.fc3(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
+        x = F.relu(self.fc3(x))
+        x = self.fc5(x)  # No Sigmoid needed -> its included in the nn.CrossEntropyLoss()
 
         return x
 
@@ -144,7 +147,7 @@ if __name__ == "__main__":
     model = ConvNet()
     model.load_state_dict(torch.load(model_path))
     if torch.cuda.is_available():
-        summary(model, input_size=(batch_size, 1, 128, 128))
+        summary(model, input_size=(batch_size, 1, 64, 64))
     # evaluate_model(model, device, data_loader)
 
 

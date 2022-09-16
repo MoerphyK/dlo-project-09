@@ -1,0 +1,12 @@
+Accuracies in epoch 41:
+Total: 98.65042174320524%
+Rock: 99.07346128391794%
+Paper: 99.79973297730307%
+Scissor: 99.35233160621762%
+Undefined: 94.24552429667519%
+
+Hyperparemter:
+Batch Size: 32
+Learning Rate: 0.0001
+Drop Out Rate: 0.5
+Early Stopping Patience: 4

@@ -25,8 +25,8 @@ Old images are not deleted, therefore an old image may stay in the folder if it 
 
 start = default_timer()
 
-LOAD_FOLDER = "../assets/test/"
-SAVE_FOLDER = "../assets/test_augmented/"
+LOAD_FOLDER = "../../assets/original_dataset/"
+SAVE_FOLDER = "../../assets/augmented_new/"
 NUMBER_OF_AUGMENTED_IMAGES = 12
 
 # https://stackoverflow.com/questions/49882682/how-do-i-list-folder-in-directory
@@ -51,14 +51,12 @@ for index, subFolder in enumerate(filenames):
                 transforms.ToTensor(),
                 transforms.Resize([128, 128]),
                 transforms.ColorJitter(),
-                transforms.GaussianBlur(kernel_size=3),
                 transforms.RandomRotation(degrees=20),
-                #transforms.RandomCrop(128, 128),
-                transforms.Grayscale(),
-                #transforms.RandomPerspective(),
+                transforms.RandomPerspective(),
                 transforms.RandomVerticalFlip(),
                 transforms.RandomHorizontalFlip(),
-                #transforms.Normalize((0.5), (0.5)), # is this inplace? # transforms.ToTensor already normalizes tp [0,1]
+                transforms.GaussianBlur(kernel_size=5),
+                transforms.Grayscale(),
                 transforms.ToPILImage(),
             ])
 
